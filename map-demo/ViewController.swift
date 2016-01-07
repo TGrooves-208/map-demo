@@ -8,13 +8,22 @@
 
 import UIKit
 import MapKit
+import CoreLocation
 
-class ViewController: UIViewController, MKMapViewDelegate {
+class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
 
     @IBOutlet var map: MKMapView!
     
+    var locationManager = CLLocationManager()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+        
         //43.607745, -116.212378
         
         //Using let as opposed to var due to the coordinates being a constant
@@ -82,8 +91,31 @@ class ViewController: UIViewController, MKMapViewDelegate {
         
     }
     
+    
+    func locationManager(manager: CLLocationManager!, didUpdateLocations locations: [CLLocation]) {
+        print(locations)
+        
+        var userLocation: CLLocation = locations[0]
+        
+        var latitude = userLocation.coordinate.latitude
+        
+        var longitude = userLocation.coordinate.longitude
+        
+        let latDelta:CLLocationDegrees = 0.01
+        
+        let lonDelta:CLLocationDegrees = 0.01
+        
+        let span:MKCoordinateSpan = MKCoordinateSpanMake(latDelta, lonDelta)
+        
+        let location:CLLocationCoordinate2D = CLLocationCoordinate2DMake(latitude, longitude)
+        
+        let region:MKCoordinateRegion = MKCoordinateRegionMake(location, span)
+        
+        self.map.setRegion(region, animated: false)
+
         
         
+    }
     
 
     override func didReceiveMemoryWarning() {
